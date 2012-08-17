@@ -1,0 +1,26 @@
+{application, besc, [
+    % A short description of the application.
+    {description, "Batched Erlang StatsD Client"},
+
+    % Pull the version number from git.
+    {vsn, git},
+
+    % All names of registered processes in the application. systools uses this
+    % list to detect name clashes between applications.
+    {registered, []},
+
+    % All applications which must be started before this application is started.
+    % systools uses this list to generate correct boot scripts.
+    {applications, [kernel, stdlib]},
+
+    % The application master starts the application by calling the application
+    % callback function start/2 in the module, and with the start argument,
+    % defined here:
+    {mod, {besc_app, []}},
+
+    {env, [
+        % No defaults set; Loading the application will not override settings
+        % made by you using `application:set_env(besc, ..., ...)`.
+        % Default values are defined in FIXME.
+    ]}
+]}.
