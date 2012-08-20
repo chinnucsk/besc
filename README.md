@@ -1,8 +1,9 @@
 ### About
 `BESC` is a [StatsD](http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/) client library for Erlang.
 
-Counter _increments_ and _timings_ are collected first and get dispatched every 100 units or on timeout.
+Counter increments and timings are collected first and get dispatched every 100 units or on timeout.
 
+**Work in Progress**: Batch support will make it into the project in the coming days (-JH, 20.08.2012).
 
 ### Installation
 
