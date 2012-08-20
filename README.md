@@ -61,6 +61,10 @@ ok
 4> besc:inc("noops", 1, 1.0).
 ok
 ```
+Received and subsequently interpreted on the server's side:
+```
+sleep_duration:46055|ms|@0.750000noops:1|c|@1.000000
+```
 
 
 ### License
