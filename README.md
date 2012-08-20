@@ -49,5 +49,19 @@ You'll find an overview of timings and counters on [Flickr](http://code.flickr.c
 3. `besc:time(Key, Value, Rate)` measure how long a task took. Fields still the same, except that `By` is labeled `Value` and reflects the task's duration in miliseconds.
 
 
+### Examples
+
+```erlang
+1> application:start(besc).
+ok
+2> {Duration, _} = timer:tc(timer, sleep, [random:uniform(100)]).
+{46058,ok}
+3> besc:time("sleep_duration", Duration, 0.75).
+ok
+4> besc:inc("noops", 1, 1.0).
+ok
+```
+
+
 ### License
 This project is licensed under the FreeBSD License. A copy of the license can be found in the repository.
