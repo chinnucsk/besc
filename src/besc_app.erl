@@ -36,8 +36,8 @@ start(_StartType, _StartArgs) ->
 % Either obtain a param from the environment or return the default.
 env_or_default(Param, Default) ->
     case application:get_env(besc, Param) of
-        undefined -> Default;
-        Value -> Value
+        {ok, Value} -> Value;
+        _           -> Default
     end.
 
 
