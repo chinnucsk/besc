@@ -3,7 +3,7 @@
 
 Counter increments and timings are collected first and get dispatched every 100 units or on timeout.
 
-**Work in Progress**: Batch support will make it into the project in the coming days (-JH, 20.08.2012).
+**Work in Progress**: Batch support will make it into the project someday (-JH, 20.08.2012).
 
 ### Installation
 
