@@ -1,12 +1,6 @@
 -module (besc).
 -compile (export_all).
 
--behavior (gen_server).
--export ([
-    start_link/2,
-    init/1, handle_call/3, handle_cast/2, handle_info/2,
-    terminate/2, code_change/3]).
-
 
 % Convenience starter using the defaults.
 start() ->
@@ -22,45 +16,55 @@ start(Host, Port) ->
 % Request to increment the specified `Key` by the amount of `By`
 % at the given sample rate `Rate`.
 inc(Key, By, Rate) ->
-    gen_server:cast(?MODULE, {inc, Key, By, Rate}).
+    ?MODULE ! {inc, Key, By, Rate}.
 
 % Request to decrement the specified `Key` by the amount of `By`
 % at the given sample rate `Rate`.
 dec(Key, By, Rate) ->
-    gen_server:cast(?MODULE, {dec, Key, By, Rate}).
+    ?MODULE ! {dec, Key, By, Rate}.
 
 % Request to time some action named by `Key` by `Value`
 % at the given sample rate `Rate`.
 time(Key, Value, Rate) ->
-    gen_server:cast(?MODULE, {time, Key, Value, Rate}).
+    ?MODULE ! {time, Key, Value, Rate}.
 
 
 % Non-callback starter invoked by `besc_app`.
 start_link(Host, Port) ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [Host, Port], []).
+    Pid = spawn_link(?MODULE, loop, [Host, Port]),
+    register(besc, Pid),
+    {ok, Pid}.
 
 
 % Initialize the `besc` server.
-init([Host, Port]) ->
-    process_flag(trap_exit, true),
+loop(Host, Port) ->
     % Let the process have its own unique random numbers,
     random:seed(erlang:now()),
 
     % Obtain a UDP sockets for sending packages to the server,
     {ok, Socket} = gen_udp:open(0),
-    {ok, {Socket, Host, Port}}.
+    do_loop(_State = {Socket, Host, Port}).
 
 
 % Sample the message, either sending or discarding it.
-handle_cast(Message = {_, _, _, Rate}, State = {Socket, Host, Port}) ->
-    case Rate == 1.0 orelse random:uniform() =< Rate of
-        true  -> gen_udp:send(Socket, Host, Port, render_message(Message));
-        false -> ignored
-    end,
-    {noreply, State};
+do_loop(State = {Socket, Host, Port}) ->
+    receive
+        {_, _, _, Rate} = Message ->
+            case Rate == 1.0 orelse random:uniform() =< Rate of
+                true ->
+                    StrMsg = render_message(Message),
+                    io:format("~p~n", [StrMsg]),
+                    gen_udp:send(Socket, Host, Port, StrMsg);
+                false -> ignored
+            end,
+            do_loop(State);
 
-% Ignore everything else.
-handle_cast(_Message, State) -> {noreply, State}.
+        % Ignore any other messages.
+        _ -> do_loop(State)
+    after
+        % Allow code reload at arbitrary points.
+        1000 -> do_loop(State)
+    end.
 
 
 % Format a message into a statsd-compliant string.
@@ -73,11 +77,3 @@ render_message({dec, Key, By, Rate}) ->
 
 render_message({time, Key, Value, Rate}) ->
     io_lib:format("~s:~B|ms|@~f", [Key, Value, Rate]).
-
-
-% Ignore everything else.
-
-handle_call(_Mesage, _From, State) -> {reply, ok, State}.
-handle_info(_Info, State) -> {noreply, State}.
-code_change(_OldVsn, State, _Extra) -> {ok, State}.
-terminate(_Reason, _State) -> terminated.

@@ -4,8 +4,8 @@
 -behaviour (application).
 -export ([start/2, stop/1]).
 
--behaviour (supervisor).
--export ([init/1]).
+-behaviour (supervisor_bridge).
+-export ([init/1, terminate/2]).
 
 % Build a simple child spec.
 -define (child_spec (Id, Module, Args),
@@ -30,8 +30,8 @@
 % Invoked by the application master upon starting the sharder.
 start(_StartType, _StartArgs) ->
     Host = env_or_default(host, "127.0.0.1"),
-    Port = env_or_default(port, 3344),
-    supervisor:start_link({local, ?MODULE}, ?MODULE, [Host, Port]).
+    Port = env_or_default(port, 3345),
+    supervisor_bridge:start_link(?MODULE, [Host, Port]).
 
 % Either obtain a param from the environment or return the default.
 env_or_default(Param, Default) ->
@@ -49,9 +49,15 @@ stop(_State) ->
     stopped.
 
 
-% Supervisor callback.
+% Supervisor bridge callback.
 % Invoked on bringing up the supervision tree, starts elli then idles.
 init([Host, Port]) ->
     % Start the client server accepting increments and timings.
-    ServerSpec = ?child_spec(besc_client, besc, [Host, Port]),
-    ?sup_spec([ServerSpec]).
+    {ok, Pid} = besc:start_link(Host, Port),
+    {ok, Pid, _State = Pid}.
+
+
+% Supervisor bridge callback.
+% Called by the supervisor_bridge when it is about to terminate.
+terminate(_Reason, Pid) ->
+    erlang:exit(kill, Pid).
