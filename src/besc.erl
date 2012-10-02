@@ -53,7 +53,7 @@ init([Host, Port]) ->
 
 % Sample the message, either sending or discarding it.
 handle_cast(Message = {_, _, _, Rate}, State = {Socket, Host, Port}) ->
-    case random:uniform() =< Rate of
+    case Rate == 1.0 orelse random:uniform() =< Rate of
         true  -> gen_udp:send(Socket, Host, Port, render_message(Message));
         false -> ignored
     end,
