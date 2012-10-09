@@ -53,7 +53,6 @@ do_loop(State = {Socket, Host, Port}) ->
             case Rate == 1.0 orelse random:uniform() =< Rate of
                 true ->
                     StrMsg = render_message(Message),
-                    io:format("~p~n", [StrMsg]),
                     gen_udp:send(Socket, Host, Port, StrMsg);
                 false -> ignored
             end,
