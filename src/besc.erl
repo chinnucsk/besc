@@ -1,6 +1,9 @@
 -module (besc).
 -compile (export_all).
 
+% Size of each message bucket to dispatch.
+-define (BUCKET_SIZE, 2500).
+
 
 % Convenience starter using the defaults.
 start() ->
@@ -38,36 +41,46 @@ start_link(Host, Port) ->
 
 % Initialize the `besc` server.
 loop(Host, Port) ->
-    % Let the process have its own unique random numbers,
-    random:seed(erlang:now()),
-
     % Obtain a UDP sockets for sending packages to the server,
     {ok, Socket} = gen_udp:open(0),
-    do_loop(_State = {Socket, Host, Port}).
+    do_loop(_State = {Socket, Host, Port}, 0, []).
 
 
-% Sample the message, either sending or discarding it.
-do_loop(State = {Socket, Host, Port}) ->
+% Full bucket, handle in another process & continue emptied.
+do_loop(State, ?BUCKET_SIZE, Bucket) ->
+    spawn(?MODULE, dispatch, [State, Bucket]),
+    do_loop(State, 0, []);
+
+do_loop(State, BucketSize, Bucket) ->
     receive
-        {_, _, _, Rate} = Message ->
-            case Rate == 1.0 orelse random:uniform() =< Rate of
-                true ->
-                    StrMsg = render_message(Message),
-                    gen_udp:send(Socket, Host, Port, StrMsg);
-                false -> ignored
-            end,
-            do_loop(State);
+        {_, _, _, _} = Message ->
+            do_loop(State, BucketSize + 1, [Message|Bucket]);
 
         % Ignore any other messages.
-        _ -> do_loop(State)
+        _ -> do_loop(State, BucketSize, Bucket)
     after
-        % Allow code reload at arbitrary points.
-        1000 -> do_loop(State)
+        % Pretend the bucket is full.
+        250 -> do_loop(State, ?BUCKET_SIZE, Bucket)
     end.
+
+dispatch(State, Bucket) ->
+    % Let the process have its own unique random numbers,
+    random:seed(erlang:now()),
+    do_dispatch(State, Bucket).
+
+do_dispatch(_, []) -> done;
+do_dispatch(State = {Socket, Host, Port}, [Message|Bucket]) ->
+    {_, _, _, Rate} = Message,
+    case Rate == 1.0 orelse random:uniform() =< Rate of
+        true ->
+            StrMsg = render_message(Message),
+            gen_udp:send(Socket, Host, Port, StrMsg);
+        false -> ignored
+    end,
+    do_dispatch(State, Bucket).
 
 
 % Format a message into a statsd-compliant string.
-
 render_message({inc, Key, By, Rate}) ->
     io_lib:format("~s:~B|c|@~f", [Key, By, Rate]);
 

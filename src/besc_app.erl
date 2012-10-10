@@ -30,7 +30,7 @@
 % Invoked by the application master upon starting the sharder.
 start(_StartType, _StartArgs) ->
     Host = env_or_default(host, "127.0.0.1"),
-    Port = env_or_default(port, 3345),
+    Port = env_or_default(port, 3344),
     supervisor_bridge:start_link(?MODULE, [Host, Port]).
 
 % Either obtain a param from the environment or return the default.
