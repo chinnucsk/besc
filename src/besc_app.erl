@@ -60,4 +60,4 @@ init([Host, Port]) ->
 % Supervisor bridge callback.
 % Called by the supervisor_bridge when it is about to terminate.
 terminate(_Reason, Pid) ->
-    erlang:exit(kill, Pid).
+    erlang:exit(Pid, normal).
