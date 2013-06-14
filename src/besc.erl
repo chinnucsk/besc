@@ -1,5 +1,5 @@
 -module (besc).
--compile (export_all).
+-compile ([export_all]).
 
 % Size of each message bucket to dispatch.
 -define (BUCKET_SIZE, 2500).

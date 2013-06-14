@@ -1,5 +1,5 @@
 -module (besc_app).
--compile (export_all).
+-compile ([export_all]).
 
 -behaviour (application).
 -export ([start/2, stop/1]).
