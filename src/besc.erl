@@ -1,6 +1,7 @@
 -module (besc).
 -compile ([export_all]).
 
+
 % Size of each message bucket to dispatch.
 -define (BUCKET_SIZE, 2500).
 
@@ -21,10 +22,12 @@ start(Host, Port) ->
 inc(Key, By, Rate) ->
     ?MODULE ! {inc, Key, By, Rate}.
 
+
 % Request to decrement the specified `Key` by the amount of `By`
 % at the given sample rate `Rate`.
 dec(Key, By, Rate) ->
     ?MODULE ! {dec, Key, By, Rate}.
+
 
 % Request to time some action named by `Key` by `Value`
 % at the given sample rate `Rate`.
@@ -63,10 +66,12 @@ do_loop(State, BucketSize, Bucket) ->
         250 -> do_loop(State, ?BUCKET_SIZE, Bucket)
     end.
 
+
 dispatch(State, Bucket) ->
     % Let the process have its own unique random numbers,
     random:seed(erlang:now()),
     do_dispatch(State, Bucket).
+
 
 do_dispatch(_, []) -> done;
 do_dispatch(State = {Socket, Host, Port}, [Message|Bucket]) ->

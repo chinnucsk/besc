@@ -7,6 +7,7 @@
 -behaviour (supervisor_bridge).
 -export ([init/1, terminate/2]).
 
+
 % Build a simple child spec.
 -define (child_spec (Id, Module, Args),
     {Id, _MFA = {Module, start_link, Args},
