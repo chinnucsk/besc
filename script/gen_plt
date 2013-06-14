@@ -1,0 +1,43 @@
+#!/bin/sh
+
+# Copied from:
+# https://github.com/erlang-commons/edo/blob/basics/build/gen_plt
+
+# List of applications to build PLT files for
+apps="erts kernel stdlib"
+# Directory to store PLT files in
+plt_dir=$(dirname $0)/plts
+
+
+cancel_jobs() {
+    for pid in $worker_pids; do
+        kill $pid 2>/dev/null
+        echo "canceled job $pid"
+    done
+}
+trap "echo; cancel_jobs; exit 1" 2
+
+
+worker_pids=""
+for app in $apps; do
+    plt_file="${plt_dir}/${app}.plt"
+
+    # Build from scratch or verify the app's PLT
+    operation=""
+    if [ -f $plt_file ]; then
+        operation="--check_plt --plt ${plt_file}"
+        echo -n "Checking PLT for application '${app}'"
+    else
+        operation="--build_plt --output_plt ${plt_file}"
+        echo -n "Building PLT for application '${app}'"
+    fi
+
+    dialyzer --quiet $operation --apps $app &
+    worker_pids="$worker_pids $!"
+    echo " (pid=$!)"
+done
+
+for pid in $worker_pids; do
+    wait $pid
+    echo "process $pid finished"
+done
