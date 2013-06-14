@@ -18,7 +18,7 @@ start(Host, Port) ->
 % Request to increment the specified `Key` by the amount of `By`
 % at the given sample rate `Rate`.
 inc(Key, By, Rate) ->
-    ?MODULE ! ?bescMsgT(inc, Key, By, Rate),
+    whereis(?MODULE) ! ?bescMsgT(inc, Key, By, Rate),
     ok.
 
 
@@ -26,7 +26,7 @@ inc(Key, By, Rate) ->
 % Request to decrement the specified `Key` by the amount of `By`
 % at the given sample rate `Rate`.
 dec(Key, By, Rate) ->
-    ?MODULE ! ?bescMsgT(dec, Key, By, Rate),
+    whereis(?MODULE) ! ?bescMsgT(dec, Key, By, Rate),
     ok.
 
 
@@ -34,7 +34,7 @@ dec(Key, By, Rate) ->
 % Request to time some action named by `Key` by `Value`
 % at the given sample rate `Rate`.
 time(Key, Value, Rate) ->
-    ?MODULE ! ?bescMsgT(time, Key, Value, Rate),
+    whereis(?MODULE) ! ?bescMsgT(time, Key, Value, Rate),
     ok.
 
 
