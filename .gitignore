@@ -1,5 +1,6 @@
 *.beam
 *.app
 *.dump
-deps/*
 *.log
+*.plt
+deps/*

@@ -1,5 +1,5 @@
 ### About
-`BESC` is a [StatsD](http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/) client library for Erlang.
+`BESC` is a [StatsD](http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/) client for Erlang.
 
 Counter increments and timings are collected first and get dispatched every 2500 metrics or on timeout.
 
@@ -13,11 +13,11 @@ Add `besc` to your project of choice via [rebar](https://github.com/basho/rebar)
     % Batched Erlang StatsD Client.
     {besc, "",
         {git, "git@github.com:wooga/besc.git",
-        {tag, "2fb98078fe76e658c1e1984371fbaca8168e847f"}}}
+        {branch, "stable"}}}
 ]}
 ```
 
-The default configuration points to a StatsD server at `127.0.0.1` listening on port `3344` this can be changed however:
+The default configuration points to a StatsD server at `127.0.0.1` listening on port `3344`, this can be changed however:
 * Override the configuration using `application:set_env` and friends:
 
     ```erlang
@@ -37,15 +37,15 @@ The default configuration points to a StatsD server at `127.0.0.1` listening on 
 
 ### Usage
 
-You'll find an overview of timings and counters on [Flickr](http://code.flickr.com/blog/2008/10/27/counting-timing/).
+Find an overview of the concept of timings and counters on the [Flickr Blog](http://code.flickr.com/blog/2008/10/27/counting-timing/).
 
 1. `besc:inc(Key, By, Rate)` increments a counter, where the fields are:
-  * `Key` - A key describing what is being counted, interpreted as a string;
-  * `By` - The amount by which to increment the counter,
-  * `Rate` - The [sample rate](https://en.wikipedia.org/wiki/Sampling_rate)
+  * `Key` - A key describing what is being counted, interpreted as a string
+  * `By` - The amount by which to increment the counter
+  * `Rate` - The [sampling rate](https://en.wikipedia.org/wiki/Sampling_rate)
 
-2. `besc:dec(Key, By, Rate)` the opposite of inc, decrements a counter. Fields are the same as with `inc`,
-3. `besc:time(Key, Value, Rate)` measure how long a task took. Fields still the same, except that `By` is labeled `Value` and reflects the task's duration in miliseconds.
+2. `besc:dec(Key, By, Rate)` the opposite of inc, decrements a counter. Parameters are the same as with `inc`
+3. `besc:time(Key, Value, Rate)` measure how long a task took. Parameters are the same, except for `By`, which is labeled `Value` and reflects the task's duration _in miliseconds_
 
 
 ### Examples
@@ -62,7 +62,8 @@ ok
 ```
 Received and subsequently interpreted on the server's side:
 ```
-sleep_duration:46055|ms|@0.750000noops:1|c|@1.000000
+sleep_duration:46055|ms|@0.750000
+noops:1|c|@1.000000
 ```
 
 
