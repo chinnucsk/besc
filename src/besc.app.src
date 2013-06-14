@@ -21,6 +21,6 @@
     {env, [
         % No defaults set; Loading the application will not override settings
         % made by you using `application:set_env(besc, ..., ...)`.
-        % Default values are defined in FIXME.
+        % Default values are defined in besc_app.erl.
     ]}
 ]}.

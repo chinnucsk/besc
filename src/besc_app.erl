@@ -1,5 +1,6 @@
 -module (besc_app).
 -compile ([export_all]).
+-include ("besc.hrl").
 
 -behaviour (application).
 -export ([start/2, stop/1]).
@@ -28,19 +29,11 @@
 
 
 % Application callback.
-% Invoked by the application master upon starting the sharder.
+% Invoked by the application master upon starting besc.
 start(_StartType, _StartArgs) ->
-    Host = readenv(host, "127.0.0.1"),
-    Port = readenv(port, 3344),
+    {ok, Host} = application:get_env(besc, host, "127.0.0.1"),
+    {ok, Port} = application:get_env(besc, port, 3344),
     supervisor_bridge:start_link(?MODULE, [Host, Port]).
-
-
-% Either obtain a param from the environment or return the default.
-readenv(Param, Default) ->
-    case application:get_env(besc, Param) of
-        {ok, Value} -> Value;
-        _           -> Default
-    end.
 
 
 % Application callback.
