@@ -30,12 +30,13 @@
 % Application callback.
 % Invoked by the application master upon starting the sharder.
 start(_StartType, _StartArgs) ->
-    Host = env_or_default(host, "127.0.0.1"),
-    Port = env_or_default(port, 3344),
+    Host = readenv(host, "127.0.0.1"),
+    Port = readenv(port, 3344),
     supervisor_bridge:start_link(?MODULE, [Host, Port]).
 
+
 % Either obtain a param from the environment or return the default.
-env_or_default(Param, Default) ->
+readenv(Param, Default) ->
     case application:get_env(besc, Param) of
         {ok, Value} -> Value;
         _           -> Default
